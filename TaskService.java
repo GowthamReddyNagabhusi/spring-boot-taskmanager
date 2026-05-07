@@ -3,14 +3,22 @@ import java.util.Iterator;
 
 public class TaskService {
     private ArrayList<Task> tasks;
-    private int idCounter = 1;
+    private int idCounter;
+    private FileHandler fileHandler;
     public TaskService(){
-        tasks = new ArrayList<>();
+        fileHandler = new FileHandler();
+        tasks = fileHandler.loadTasks();
+        idCounter = 1;
+        for(Task task : tasks){
+            int taskId = task.getId();
+            idCounter = Math.max(idCounter, taskId + 1);
+        }
     }
     
     public void addTask(String title) {
         Task task = new Task(idCounter++, title, false);
         tasks.add(task);
+        fileHandler.saveTasks(tasks);
     }
     
     public void viewTasks() {
@@ -32,6 +40,7 @@ public class TaskService {
                 found = true;
                 iterator.remove();
                 System.out.println("Task deleted successfully");
+                fileHandler.saveTasks(tasks);
                 break;
             }
         }
