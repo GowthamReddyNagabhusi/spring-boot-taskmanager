@@ -1,8 +1,10 @@
 package persistence;
 import java.io.File;
 import java.util.ArrayList;
+import java.time.LocalDate;
 
 import model.Task;
+import model.Priority;
 
 import java.io.IOException;
 import java.io.BufferedWriter;
@@ -14,7 +16,7 @@ public class FileHandler {
         File myFile = new File("tasks.txt");
         try(BufferedWriter writer = new BufferedWriter(new FileWriter(myFile))){
             for(Task task : tasks){
-                writer.write(task.getId() + "," + task.getTitle() + "," + task.isCompleted());
+                writer.write(task.getId() + "," + task.getTitle() + "," + task.isCompleted() + "," + task.getPriority() + "," + task.getDueDate());
                 writer.newLine();
             }
         }catch(IOException e){
@@ -31,17 +33,19 @@ public class FileHandler {
             String line;
             while((line = reader.readLine()) != null){
                 String[] parts = line.split(",");
-                if(parts.length != 3){
+                if(parts.length != 5){
                     continue;
                 }
                 int id = Integer.parseInt(parts[0]);
                 String title = parts[1];
                 boolean isCompleted = Boolean.parseBoolean(parts[2]);
-                Task task = new Task(id, title, isCompleted);
+                Priority priority = Priority.valueOf(parts[3]);
+                LocalDate dueDate = LocalDate.parse(parts[4]);
+                Task task = new Task(id, title, isCompleted, priority, dueDate);
                 tasks.add(task);
             }
         }catch(Exception e){
-            System.out.println("Error reading file: " + e.getMessage());
+            System.out.println("Error reading file: " + e.getMessage());  
         }
         return tasks;
     }

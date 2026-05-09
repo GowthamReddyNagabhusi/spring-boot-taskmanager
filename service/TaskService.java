@@ -2,9 +2,10 @@ package service;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.function.Predicate;
-
+import model.Priority;
 import model.Task;
 import persistence.FileHandler;
+import java.time.LocalDate;
 
 public class TaskService {
     private ArrayList<Task> tasks;
@@ -19,8 +20,8 @@ public class TaskService {
             idCounter = Math.max(idCounter, taskId + 1);
         }
     }
-    public void addTask(String title) {
-        Task task = new Task(idCounter++, title, false);
+    public void addTask(String title, Priority priority, LocalDate dueDate) {
+        Task task = new Task(idCounter++, title, false, priority, dueDate);
         tasks.add(task);
         fileHandler.saveTasks(tasks);
     }
@@ -93,5 +94,57 @@ public class TaskService {
     public void viewPendingTasks(){
         filterTasks(task -> !task.isCompleted(), "No pending tasks");
     }
-    
+    public void viewTasksSortedByPriority(){
+        ArrayList<Task> sortedTasks = new ArrayList<>(tasks);
+        sortedTasks.sort((task1, task2) -> task2.getPriority().compareTo(task1.getPriority()));
+        for(Task task : sortedTasks){
+            System.out.println(task);
+        }
+    }
+    public void viewOverdueTasks(){
+        LocalDate today = LocalDate.now();
+        filterTasks(task -> !task.isCompleted() && task.getDueDate().isBefore(today), "No overdue tasks");
+    }
+    public void viewTaskStatistics(){
+        int totalTasks = tasks.size();
+        int completedTasks = 0;
+        int pendingTasks = 0;
+        int highPriorityPendingTasks = 0;
+        int overdueTasks = 0;
+        LocalDate today = LocalDate.now();
+        for(Task task : tasks){
+            if(task.isCompleted()){
+                completedTasks++;
+            }else{
+                pendingTasks++;
+                if(task.getPriority() == Priority.HIGH){
+                    highPriorityPendingTasks++;
+                }
+                if(task.getDueDate().isBefore(today)){
+                    overdueTasks++;
+                }
+            }
+        }
+        System.out.println("Total Tasks: " + totalTasks);
+        System.out.println("Completed Tasks: " + completedTasks);
+        System.out.println("Pending Tasks: " + pendingTasks);
+        System.out.println("High Priority Pending Tasks: " + highPriorityPendingTasks);
+        System.out.println("Overdue Tasks: " + overdueTasks);
+    }
+    public void editTask(int id,
+                     String newTitle,
+                     Priority newPriority,
+                     LocalDate newDueDate){
+        for(Task task : tasks){
+            if(task.getId() == id){
+                if(!newTitle.isEmpty()) task.setTitle(newTitle);
+                if(newPriority != null)task.setPriority(newPriority);
+                if(newDueDate != null)task.setDueDate(newDueDate);
+                fileHandler.saveTasks(tasks);
+                System.out.println("Task updated successfully");
+                return;
+            }
+        }
+        System.out.println("Task not found");
+    }
 }
