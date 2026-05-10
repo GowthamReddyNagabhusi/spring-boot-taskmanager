@@ -1,4 +1,4 @@
-package model;
+package com.gowtham.taskmanager.model;
 import java.time.LocalDate;
 public class Task {
     private int id;

@@ -1,11 +1,11 @@
-package persistence;
+package com.gowtham.taskmanager.persistence;
 import java.io.File;
 import java.util.ArrayList;
+
+import com.gowtham.taskmanager.model.Priority;
+import com.gowtham.taskmanager.model.Task;
+
 import java.time.LocalDate;
-
-import model.Task;
-import model.Priority;
-
 import java.io.IOException;
 import java.io.BufferedWriter;
 import java.io.FileWriter;

@@ -1,9 +1,9 @@
-package ui;
+package com.gowtham.taskmanager.ui;
 import java.time.LocalDate;
 import java.util.Scanner;
 
-import service.TaskService;
-import model.Priority;
+import com.gowtham.taskmanager.model.Priority;
+import com.gowtham.taskmanager.service.TaskService;
 public class Main{
     public static void main(String[] args){
         TaskService service = new TaskService();

@@ -1,4 +1,4 @@
-package model;
+package com.gowtham.taskmanager.model;
 
 public enum Priority {
     LOW, MEDIUM, HIGH;

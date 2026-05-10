@@ -1,10 +1,12 @@
-package service;
+package com.gowtham.taskmanager.service;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.function.Predicate;
-import model.Priority;
-import model.Task;
-import persistence.FileHandler;
+
+import com.gowtham.taskmanager.model.Priority;
+import com.gowtham.taskmanager.model.Task;
+import com.gowtham.taskmanager.persistence.FileHandler;
+
 import java.time.LocalDate;
 
 public class TaskService {

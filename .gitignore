@@ -1,2 +1,31 @@
+# Maven
+
+target/
+
+# Compiled class files
+
 *.class
-tasks.txt
+
+# Logs
+
+*.log
+
+# IDE files
+
+.idea/
+.vscode/
+*.iml
+
+# OS files
+
+.DS_Store
+Thumbs.db
+
+# Temporary files
+
+*.tmp
+*.swp
+
+# Maven wrapper
+
+.mvn/wrapper/maven-wrapper.jar
