@@ -4,9 +4,11 @@ import java.util.Scanner;
 
 import com.gowtham.taskmanager.model.Priority;
 import com.gowtham.taskmanager.service.TaskService;
+import com.gowtham.taskmanager.persistence.FileHandler;
 public class Main{
     public static void main(String[] args){
-        TaskService service = new TaskService();
+
+        TaskService service = new TaskService(new FileHandler());
         try (Scanner scanner = new Scanner(System.in)) {
             while(true){
             System.out.println("--- Task Manager ---");
@@ -93,6 +95,7 @@ public class Main{
                     }
                     service.editTask(id, newTitle, newPriority, newDueDate);
                     System.out.println();
+                    break;
                 case 6:
                     scanner.nextLine();
                     System.out.print("Enter keyword: ");

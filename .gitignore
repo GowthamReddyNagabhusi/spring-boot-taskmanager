@@ -29,3 +29,7 @@ Thumbs.db
 # Maven wrapper
 
 .mvn/wrapper/maven-wrapper.jar
+
+#persistent data
+data/
+tasks.txt

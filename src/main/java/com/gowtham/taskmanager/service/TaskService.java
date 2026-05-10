@@ -6,16 +6,17 @@ import java.util.function.Predicate;
 import com.gowtham.taskmanager.model.Priority;
 import com.gowtham.taskmanager.model.Task;
 import com.gowtham.taskmanager.persistence.FileHandler;
+import com.gowtham.taskmanager.persistence.TaskRepository;
 
 import java.time.LocalDate;
 
 public class TaskService {
     private ArrayList<Task> tasks;
     private int idCounter;
-    private FileHandler fileHandler;
-    public TaskService(){
-        fileHandler = new FileHandler();
-        tasks = fileHandler.loadTasks();
+    private TaskRepository repository;
+    public TaskService(TaskRepository repository){
+        this.repository = repository;
+        tasks = repository.loadTasks();
         idCounter = 1;
         for(Task task : tasks){
             int taskId = task.getId();
@@ -25,7 +26,7 @@ public class TaskService {
     public void addTask(String title, Priority priority, LocalDate dueDate) {
         Task task = new Task(idCounter++, title, false, priority, dueDate);
         tasks.add(task);
-        fileHandler.saveTasks(tasks);
+        repository.saveTasks(tasks);
     }
     
     public void viewTasks() {
@@ -47,7 +48,7 @@ public class TaskService {
                 found = true;
                 iterator.remove();
                 System.out.println("Task deleted successfully");
-                fileHandler.saveTasks(tasks);
+                repository.saveTasks(tasks);
                 break;
             }
         }
@@ -61,7 +62,7 @@ public class TaskService {
             if(task.getId() == id){
                 if(!task.isCompleted()){
                     task.markCompleted();
-                    fileHandler.saveTasks(tasks);
+                    repository.saveTasks(tasks);
                     System.out.println("Task marked completed");
                     found = true;
                     break;
@@ -142,7 +143,7 @@ public class TaskService {
                 if(!newTitle.isEmpty()) task.setTitle(newTitle);
                 if(newPriority != null)task.setPriority(newPriority);
                 if(newDueDate != null)task.setDueDate(newDueDate);
-                fileHandler.saveTasks(tasks);
+                repository.saveTasks(tasks);
                 System.out.println("Task updated successfully");
                 return;
             }

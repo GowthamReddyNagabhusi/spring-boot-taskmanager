@@ -13,7 +13,11 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 public class FileHandler {
     public void saveTasks(ArrayList<Task> tasks){
-        File myFile = new File("tasks.txt");
+        File dataFolder = new File("data");
+        if(!dataFolder.exists()){
+            dataFolder.mkdirs();
+        }
+        File myFile = new File("data/tasks.txt");
         try(BufferedWriter writer = new BufferedWriter(new FileWriter(myFile))){
             for(Task task : tasks){
                 writer.write(task.getId() + "," + task.getTitle() + "," + task.isCompleted() + "," + task.getPriority() + "," + task.getDueDate());
@@ -24,7 +28,7 @@ public class FileHandler {
         }
     }
     public ArrayList<Task> loadTasks(){
-        File myFile = new File("tasks.txt");
+        File myFile = new File("data/tasks.txt");
         ArrayList<Task> tasks = new ArrayList<>();
         if(!myFile.exists()){
             return tasks;
