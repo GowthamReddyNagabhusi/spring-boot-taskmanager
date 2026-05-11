@@ -1,9 +1,9 @@
-package com.gowtham.taskmanager.persistence;
+package com.myapp.taskmanager.persistence;
 import java.io.File;
 import java.util.ArrayList;
 
-import com.gowtham.taskmanager.model.Priority;
-import com.gowtham.taskmanager.model.Task;
+import com.myapp.taskmanager.model.Priority;
+import com.myapp.taskmanager.model.Task;
 
 import java.time.LocalDate;
 import java.io.IOException;
@@ -11,7 +11,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.BufferedReader;
 import java.io.FileReader;
-public class FileHandler {
+public class FileHandler implements TaskRepository {
     public void saveTasks(ArrayList<Task> tasks){
         File dataFolder = new File("data");
         if(!dataFolder.exists()){

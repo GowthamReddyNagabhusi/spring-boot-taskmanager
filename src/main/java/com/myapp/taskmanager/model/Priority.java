@@ -1,4 +1,4 @@
-package com.gowtham.taskmanager.model;
+package com.myapp.taskmanager.model;
 
 public enum Priority {
     LOW, MEDIUM, HIGH;
