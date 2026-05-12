@@ -1,13 +1,12 @@
 package com.myapp.taskmanager.service;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.function.Predicate;
-
 import com.myapp.taskmanager.model.Priority;
 import com.myapp.taskmanager.model.Task;
 import com.myapp.taskmanager.model.TaskStatistics;
 import com.myapp.taskmanager.persistence.TaskRepository;
 import java.time.LocalDate;
+import java.util.stream.Collectors;
 
 public class TaskService {
     private ArrayList<Task> tasks;
@@ -73,33 +72,33 @@ public class TaskService {
         }
         return TaskCompletionResult.NOT_FOUND;
     }
-    private ArrayList<Task> filterTasks(Predicate<Task> condition){
-        ArrayList<Task> filteredTasks = new ArrayList<>();
-        for(Task task : tasks){
-            if(condition.test(task)){
-                filteredTasks.add(task);
-            }
-        }
-        return filteredTasks;
-    }
     public ArrayList<Task> searchTasks(String keyword){
         String lowerKeyword = keyword.toLowerCase();
-        return filterTasks(task -> task.getTitle().toLowerCase().contains(lowerKeyword));
+        return tasks.stream()
+                .filter(task -> task.getTitle().toLowerCase().contains(lowerKeyword))
+                .collect(Collectors.toCollection(ArrayList::new));
     }
     public ArrayList<Task> getAllCompletedTasks(){
-        return filterTasks(task -> task.isCompleted());
+        return tasks.stream()
+                .filter(Task::isCompleted)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
     public ArrayList<Task> getAllPendingTasks(){
-        return filterTasks(task -> !task.isCompleted());
+        return tasks.stream()
+                .filter(task -> !task.isCompleted())
+                .collect(Collectors.toCollection(ArrayList::new));
     }
     public ArrayList<Task> getAllTasksSortedByPriority(){
-        ArrayList<Task> sortedTasks = new ArrayList<>(tasks);
-        sortedTasks.sort((task1, task2) -> task2.getPriority().compareTo(task1.getPriority()));
-        return sortedTasks;
+        return tasks.stream()
+        .sorted((task1, task2) ->
+                task2.getPriority().compareTo(task1.getPriority()))
+        .collect(Collectors.toCollection(ArrayList::new));
     }
     public ArrayList<Task> getAllOverdueTasks(){
         LocalDate today = LocalDate.now();
-        return filterTasks(task -> !task.isCompleted() && task.getDueDate().isBefore(today));
+        return tasks.stream()
+        .filter(task -> !task.isCompleted() && task.getDueDate().isBefore(today))
+        .collect(Collectors.toCollection(ArrayList::new));
     }
     public TaskStatistics getTaskStatistics(){
         int totalTasks = tasks.size();

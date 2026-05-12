@@ -7,12 +7,22 @@ import com.myapp.taskmanager.model.Task;
 import com.myapp.taskmanager.service.TaskCompletionResult;
 import com.myapp.taskmanager.service.TaskEditResult;
 import com.myapp.taskmanager.service.TaskAddResult;
+import java.util.List;
 public class Main{
     private static void printPriorityMenu() {
         System.out.println("--- Priority Menu---");
         System.out.println("1. Low");
         System.out.println("2. Medium");
         System.out.println("3. High");
+    }
+    private static void printTasks(List<Task> tasks, String emptyMessage){
+        if(tasks.isEmpty()){
+            System.out.println(emptyMessage);
+        }else{
+            for(Task task : tasks){
+                System.out.println(task);
+            }
+        }
     }
     public static void main(String[] args){
 
@@ -62,13 +72,8 @@ public class Main{
                     break;
                 case 2:
                     tasks = service.getAllTasks();
-                    if(tasks.isEmpty()){
-                        System.out.println("No tasks found.");
-                    }else{
-                        for(Task task : tasks){
-                            System.out.println(task);
-                        }
-                    }
+                    printTasks(tasks, "No tasks found.");
+                    System.out.println();
                     break;
                 case 3:
                     System.out.print("Enter Task Id: ");
@@ -137,57 +142,27 @@ public class Main{
                     System.out.print("Enter keyword: ");
                     String keyword = scanner.nextLine();
                     tasks = service.searchTasks(keyword);
-                    if(tasks.isEmpty()){
-                        System.out.println("No tasks found matching the keyword.");
-                    }else{
-                        for(Task task : tasks){
-                            System.out.println(task);
-                        }
-                    }
+                    printTasks(tasks, "No tasks found matching the keyword.");
                     System.out.println();
                     break;
                 case 7:
                     tasks = service.getAllCompletedTasks();
-                    if(tasks.isEmpty()){
-                        System.out.println("No Completed tasks found.");
-                    }else{
-                        for(Task task : tasks){
-                            System.out.println(task);
-                        }
-                    }
+                    printTasks(tasks, "No Completed tasks found.");
                     System.out.println();
                     break;
                 case 8:
                     tasks = service.getAllPendingTasks();
-                    if(tasks.isEmpty()){
-                        System.out.println("No Pending tasks found.");
-                    }else{
-                        for(Task task : tasks){
-                            System.out.println(task);
-                        }
-                    }
+                    printTasks(tasks, "No Pending tasks found.");
                     System.out.println();
                     break;
                 case 9:
                     tasks = service.getAllTasksSortedByPriority();
-                    if(tasks.isEmpty()){
-                        System.out.println("No tasks found.");
-                    }else{
-                        for(Task task : tasks){
-                            System.out.println(task);
-                        }
-                    }
+                    printTasks(tasks, "No tasks found.");
                     System.out.println();
                     break;
                 case 10:
                     tasks = service.getAllOverdueTasks();
-                    if(tasks.isEmpty()){
-                        System.out.println("No Overdue tasks found.");
-                    }else{
-                        for(Task task : tasks){
-                            System.out.println(task);
-                        }
-                    }
+                    printTasks(tasks, "No Overdue tasks found.");
                     System.out.println();
                     break;
                 case 11:
