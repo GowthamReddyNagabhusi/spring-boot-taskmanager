@@ -1,7 +1,7 @@
 package com.myapp.taskmanager.persistence;
 import java.io.File;
+import java.util.List;
 import java.util.ArrayList;
-
 import com.myapp.taskmanager.model.Priority;
 import com.myapp.taskmanager.model.Task;
 
@@ -11,8 +11,8 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.BufferedReader;
 import java.io.FileReader;
-public class FileHandler implements TaskRepository {
-    public void saveTasks(ArrayList<Task> tasks){
+public class FileTaskRepository implements TaskRepository {
+    public void saveTasks(List<Task> tasks){
         File dataFolder = new File("data");
         if(!dataFolder.exists()){
             dataFolder.mkdirs();
@@ -27,9 +27,9 @@ public class FileHandler implements TaskRepository {
             System.out.println("Error writing to file: " + e.getMessage());
         }
     }
-    public ArrayList<Task> loadTasks(){
+    public List<Task> loadTasks(){
         File myFile = new File("data/tasks.txt");
-        ArrayList<Task> tasks = new ArrayList<>();
+        List<Task> tasks = new ArrayList<>();
         if(!myFile.exists()){
             return tasks;
         } 

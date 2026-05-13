@@ -2,7 +2,6 @@ package com.myapp.taskmanager.ui;
 import java.util.Scanner;
 import com.myapp.taskmanager.persistence.FileHandler;
 import com.myapp.taskmanager.service.TaskService;
-import java.util.ArrayList;
 import com.myapp.taskmanager.model.Task;
 import com.myapp.taskmanager.service.TaskCompletionResult;
 import com.myapp.taskmanager.service.TaskEditResult;
@@ -24,10 +23,121 @@ public class Main{
             }
         }
     }
+
+    private static void displayTasks(List<Task> tasks, String emptyMessage) {
+        printTasks(tasks, emptyMessage);
+        System.out.println();
+    }
+
+    private static void handleSearchTasks(Scanner scanner, TaskService service) {
+        scanner.nextLine();
+        System.out.print("Enter keyword: ");
+        String keyword = scanner.nextLine();
+        displayTasks(service.searchTasks(keyword), "No tasks found matching the keyword.");
+    }
+
+    private static void handleAddTask(Scanner scanner, TaskService service) {
+        System.out.print("Enter Task Title: ");
+        scanner.nextLine();
+        String title = scanner.nextLine();
+        printPriorityMenu();
+        System.out.print("Enter Task Priority: ");
+        int priority = scanner.nextInt();
+        scanner.nextLine();
+        System.out.print("Enter Due Date (YYYY-MM-DD): ");
+        String dueDate = scanner.nextLine();
+        TaskAddResult result = service.addTask(title, priority, dueDate);
+        switch(result){
+            case ADD_SUCCESS:
+                System.out.println("Task added successfully.");
+                break;
+            case TOO_LONG_TITLE:
+                System.out.println("Title is too long. Task not added.");
+                break;
+            case EMPTY_TITLE:
+                System.out.println("Title cannot be empty. Task not added.");
+                break;
+            case INVALID_PRIORITY:
+                System.out.println("Invalid priority choice. Task not added.");
+                break;
+            case DUE_DATE_INVALID_FORMAT:
+                System.out.println("Invalid due date format. Task not added.");
+                break;
+        }
+        System.out.println();
+    }
+
+    private static void handleDeleteTask(Scanner scanner, TaskService service) {
+        System.out.print("Enter Task Id: ");
+        int id = scanner.nextInt();
+        boolean deleted = service.deleteTask(id);
+        if(!deleted){
+            System.out.println("Task not found. Deletion failed.");
+        }else{
+            System.out.println("Task deleted successfully.");
+        }
+    }
+
+    private static void handleCompleteTask(Scanner scanner, TaskService service) {
+        System.out.print("Enter Task Id: ");
+        int id = scanner.nextInt();
+        TaskCompletionResult taskCompletionResult = service.markTaskCompleted(id);
+        switch(taskCompletionResult){
+            case SUCCESS:
+                System.out.println("Task marked as completed.");
+                break;
+            case ALREADY_COMPLETED:
+                System.out.println("Task is already completed.");
+                break;
+            case NOT_FOUND:
+                System.out.println("Task not found.");
+                break;
+        }
+        System.out.println();
+    }
+
+    private static void handleEditTask(Scanner scanner, TaskService service) {
+        System.out.print("Enter Task Id: ");
+        int id = scanner.nextInt();
+        scanner.nextLine();
+        System.out.print("Enter new title (leave blank to keep unchanged): ");
+        String newTitle = scanner.nextLine();
+        printPriorityMenu();
+        System.out.print("Enter new priority (0 to keep unchanged): ");
+        int newPriorityChoice = scanner.nextInt();  
+        scanner.nextLine();
+        System.out.print("Enter new due date (YYYY-MM-DD, leave blank to keep unchanged): ");
+        String newDueDateChoice = scanner.nextLine();
+        TaskEditResult taskEditResult = service.editTask(id, newTitle, newPriorityChoice, newDueDateChoice);
+        switch(taskEditResult){
+            case EDIT_SUCCESS:
+                System.out.println("Task edited successfully.");
+                break;
+            case TASK_NOT_FOUND:
+                System.out.println("Task not found.");
+                break;
+            case INVALID_PRIORITY:
+                System.out.println("Invalid priority choice. Task not edited.");
+                break;
+            case TOO_LONG_TITLE:
+                System.out.println("Title is too long. Task not edited.");
+                break;
+            case DUE_DATE_IN_PAST:
+                System.out.println("Due date cannot be in the past. Task not edited.");
+                break;
+            case DUE_DATE_INVALID_FORMAT:
+                System.out.println("Invalid due date format. Task not edited.");
+                break;
+            case NO_CHANGES_PROVIDED:
+                System.out.println("No changes provided. Task not edited.");
+                break;
+        }
+        System.out.println();
+    }
+
     public static void main(String[] args){
 
         TaskService service = new TaskService(new FileHandler());
-        ArrayList<Task> tasks;
         try (Scanner scanner = new Scanner(System.in)) {
             while(true){
             System.out.println("--- Task Manager ---");
@@ -47,123 +157,34 @@ public class Main{
             int choice = scanner.nextInt();
             switch(choice){
                 case 1:
-                    System.out.print("Enter Task Title: ");
-                    scanner.nextLine();
-                    String title = scanner.nextLine();
-                    printPriorityMenu();
-                    System.out.print("Enter Task Priority: ");
-                    int priority = scanner.nextInt();
-                    scanner.nextLine();
-                    System.out.print("Enter Due Date (YYYY-MM-DD): ");
-                    String dueDate = scanner.nextLine();
-                    TaskAddResult result = service.addTask(title, priority, dueDate);
-                    switch(result){
-                        case ADD_SUCCESS:
-                            System.out.println("Task added successfully.");
-                            break;
-                        case INVALID_PRIORITY:
-                            System.out.println("Invalid priority choice. Task not added.");
-                            break;
-                        case DUE_DATE_INVALID_FORMAT:
-                            System.out.println("Invalid due date format. Task not added.");
-                            break;
-                    }
-                    System.out.println();
+                    handleAddTask(scanner, service);
                     break;
                 case 2:
-                    tasks = service.getAllTasks();
-                    printTasks(tasks, "No tasks found.");
-                    System.out.println();
+                    displayTasks(service.getAllTasks(), "No tasks found.");
                     break;
                 case 3:
-                    System.out.print("Enter Task Id: ");
-                    int id = scanner.nextInt();
-                    boolean deleted = service.deleteTask(id);
-                    if(!deleted){
-                        System.out.println("Task not found. Deletion failed.");
-                    }else{
-                        System.out.println("Task deleted successfully.");
-                    }
+                    handleDeleteTask(scanner, service);
                     break;
                 case 4:
-                    System.out.print("Enter Task Id: ");
-                    id = scanner.nextInt();
-                    TaskCompletionResult taskCompletionResult = service.markTaskCompleted(id);
-                    switch(taskCompletionResult){
-                        case SUCCESS:
-                            System.out.println("Task marked as completed.");
-                            break;
-                        case ALREADY_COMPLETED:
-                            System.out.println("Task is already completed.");
-                            break;
-                        case NOT_FOUND:
-                            System.out.println("Task not found.");
-                            break;
-                    }
-                    System.out.println();
+                    handleCompleteTask(scanner, service);
                     break;
                 case 5:
-                    System.out.print("Enter Task Id: ");
-                    id = scanner.nextInt();
-                    scanner.nextLine();
-                    System.out.print("Enter new title (leave blank to keep unchanged): ");
-                    String newTitle = scanner.nextLine();
-                    printPriorityMenu();
-                    System.out.print("Enter new priority (0 to keep unchanged): ");
-                    int newPriorityChoice = scanner.nextInt();  
-                    scanner.nextLine();
-                    System.out.print("Enter new due date (YYYY-MM-DD, leave blank to keep unchanged): ");
-                    String newDueDateChoice = scanner.nextLine();
-                    TaskEditResult taskEditResult = service.editTask(id, newTitle, newPriorityChoice, newDueDateChoice);
-                    switch(taskEditResult){
-                        case EDIT_SUCCESS:
-                            System.out.println("Task edited successfully.");
-                            break;
-                        case TASK_NOT_FOUND:
-                            System.out.println("Task not found.");
-                            break;
-                        case INVALID_PRIORITY:
-                            System.out.println("Invalid priority choice. Task not edited.");
-                            break;
-                        case DUE_DATE_IN_PAST:
-                            System.out.println("Due date cannot be in the past. Task not edited.");
-                            break;
-                        case DUE_DATE_INVALID_FORMAT:
-                            System.out.println("Invalid due date format. Task not edited.");
-                            break;
-                        case NO_CHANGES_PROVIDED:
-                            System.out.println("No changes provided. Task not edited.");
-                            break;
-                    }
-                    System.out.println();
+                    handleEditTask(scanner, service);
                     break;
                 case 6:
-                    scanner.nextLine();
-                    System.out.print("Enter keyword: ");
-                    String keyword = scanner.nextLine();
-                    tasks = service.searchTasks(keyword);
-                    printTasks(tasks, "No tasks found matching the keyword.");
-                    System.out.println();
+                    handleSearchTasks(scanner, service);
                     break;
                 case 7:
-                    tasks = service.getAllCompletedTasks();
-                    printTasks(tasks, "No Completed tasks found.");
-                    System.out.println();
+                    displayTasks(service.getAllCompletedTasks(), "No Completed tasks found.");
                     break;
                 case 8:
-                    tasks = service.getAllPendingTasks();
-                    printTasks(tasks, "No Pending tasks found.");
-                    System.out.println();
+                    displayTasks(service.getAllPendingTasks(), "No Pending tasks found.");
                     break;
                 case 9:
-                    tasks = service.getAllTasksSortedByPriority();
-                    printTasks(tasks, "No tasks found.");
-                    System.out.println();
+                    displayTasks(service.getAllTasksSortedByPriority(), "No tasks found.");
                     break;
                 case 10:
-                    tasks = service.getAllOverdueTasks();
-                    printTasks(tasks, "No Overdue tasks found.");
-                    System.out.println();
+                    displayTasks(service.getAllOverdueTasks(), "No Overdue tasks found.");
                     break;
                 case 11:
                     System.out.println(service.getTaskStatistics());

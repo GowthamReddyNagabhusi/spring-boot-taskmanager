@@ -1,5 +1,6 @@
 package com.myapp.taskmanager.service;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Iterator;
 import com.myapp.taskmanager.model.Priority;
 import com.myapp.taskmanager.model.Task;
@@ -9,9 +10,52 @@ import java.time.LocalDate;
 import java.util.stream.Collectors;
 
 public class TaskService {
-    private ArrayList<Task> tasks;
+    private List<Task> tasks;
     private int idCounter;
     private TaskRepository repository;
+    private Task findTaskById(int id){
+        return tasks.stream()
+        .filter(task -> task.getId() == id)
+        .findFirst()
+        .orElse(null);
+    }
+    private ValidationResult validateTitle(String title, boolean isEdit) {
+        if(title == null || title.trim().isEmpty()){
+            return isEdit ? ValidationResult.NO_INPUT : ValidationResult.EMPTY_TITLE;
+        }
+        if(title.length() > 100){
+            return ValidationResult.TOO_LONG_TITLE;
+        }
+        return ValidationResult.VALID;
+    }
+    private ValidationResult validateDueDate(String dueDateString, boolean isEdit) {
+        if(dueDateString == null || dueDateString.trim().isEmpty()){
+            return isEdit ? ValidationResult.NO_INPUT : ValidationResult.INVALID_DATE;
+        }
+        try{
+            LocalDate dueDate = LocalDate.parse(dueDateString);
+            if(dueDate.isBefore(LocalDate.now())){
+                return ValidationResult.IN_PAST;
+            }
+            return ValidationResult.VALID;
+        }catch(Exception e){
+            return ValidationResult.INVALID_DATE;
+        }
+    }
+        
+    private ValidationResult validatePriority(Integer priorityInt, boolean isEdit) {
+        if (priorityInt == null || priorityInt == 0) {
+            return isEdit ? ValidationResult.NO_INPUT : ValidationResult.INVALID_PRIORITY;
+        }
+        if (priorityInt < 1 || priorityInt > 3) {
+            return ValidationResult.INVALID_PRIORITY;
+        }
+        return ValidationResult.VALID;
+    }
+
+    private void saveTasks(){
+        repository.saveTasks(tasks);
+    }
     public TaskService(TaskRepository repository){
         this.repository = repository;
         tasks = repository.loadTasks();
@@ -21,84 +65,85 @@ public class TaskService {
             idCounter = Math.max(idCounter, taskId + 1);
         }
     }
-    public TaskAddResult addTask(String title, int priorityInt, String dueDateString) {
-        if(priorityInt < 1 || priorityInt > 3){
-            return TaskAddResult.INVALID_PRIORITY;
-        }
-        Priority priority = Priority.fromChoice(priorityInt);
-        LocalDate dueDate;
-        try{
-            dueDate = LocalDate.parse(dueDateString);
-        }catch(Exception e){
-            return TaskAddResult.DUE_DATE_INVALID_FORMAT;
-        }
+    public TaskAddResult addTask(String title, Integer priorityInt, 
+        String dueDateString) {
+        ValidationResult titleValidation = validateTitle(title, false);
+        if (titleValidation == ValidationResult.EMPTY_TITLE) return TaskAddResult.EMPTY_TITLE;
+        if (titleValidation == ValidationResult.TOO_LONG_TITLE) return TaskAddResult.TOO_LONG_TITLE;
 
-        Task task = new Task(idCounter++, title, false, priority, dueDate);
-        tasks.add(task);
-        repository.saveTasks(tasks);
-        return TaskAddResult.ADD_SUCCESS;
+        ValidationResult priorityValidation = validatePriority(priorityInt, false);
+        if (priorityValidation == ValidationResult.INVALID_PRIORITY) return TaskAddResult.INVALID_PRIORITY;
+
+        ValidationResult dueDateValidation = validateDueDate(dueDateString, false);
+        if (dueDateValidation == ValidationResult.INVALID_DATE) return TaskAddResult.DUE_DATE_INVALID_FORMAT;
+
+        Priority priority = Priority.fromChoice(priorityInt);
+        LocalDate dueDate = LocalDate.parse(dueDateString);
+        Task newTask = new Task(idCounter++, title, 
+            false, priority, dueDate);
+        tasks.add(newTask);
+        saveTasks();
+        return TaskAddResult.ADD_SUCCESS;  
     }
     
-    public ArrayList<Task> getAllTasks() {
+    public List<Task> getAllTasks() {
         return new ArrayList<>(tasks);
     }
     public boolean deleteTask(int id) {
-        boolean found = false;
         Iterator<Task> iterator = tasks.iterator();
 
         while(iterator.hasNext()) {
             Task task = iterator.next();
             if(task.getId() == id) {
-                found = true;
                 iterator.remove();
-                repository.saveTasks(tasks);
-                break;
+                saveTasks();
+                return true;
             }
         }
 
-        return found;
+        return false;
     }
     public TaskCompletionResult markTaskCompleted(int id){
-        for(Task task : tasks){
-            if(task.getId() == id){
-                if(!task.isCompleted()){
-                    task.markCompleted();
-                    repository.saveTasks(tasks);
-                    return TaskCompletionResult.SUCCESS;
-                }else{
-                    return TaskCompletionResult.ALREADY_COMPLETED;
-                }
-            }
+        Task task = findTaskById(id);
+        if(task == null){
+            return TaskCompletionResult.NOT_FOUND;
         }
-        return TaskCompletionResult.NOT_FOUND;
+        if(task.isCompleted()){
+            return TaskCompletionResult.ALREADY_COMPLETED;
+        }
+        task.markCompleted();
+        saveTasks();
+        return TaskCompletionResult.SUCCESS;
     }
-    public ArrayList<Task> searchTasks(String keyword){
+    public List<Task> searchTasks(String keyword){
         String lowerKeyword = keyword.toLowerCase();
         return tasks.stream()
-                .filter(task -> task.getTitle().toLowerCase().contains(lowerKeyword))
-                .collect(Collectors.toCollection(ArrayList::new));
+                .filter(task -> task.getTitle()
+                .toLowerCase().contains(lowerKeyword))
+                .collect(Collectors.toList());
     }
-    public ArrayList<Task> getAllCompletedTasks(){
+    public List<Task> getAllCompletedTasks(){
         return tasks.stream()
                 .filter(Task::isCompleted)
-                .collect(Collectors.toCollection(ArrayList::new));
+                .collect(Collectors.toList());
     }
-    public ArrayList<Task> getAllPendingTasks(){
+    public List<Task> getAllPendingTasks(){
         return tasks.stream()
                 .filter(task -> !task.isCompleted())
-                .collect(Collectors.toCollection(ArrayList::new));
+                .collect(Collectors.toList());
     }
-    public ArrayList<Task> getAllTasksSortedByPriority(){
+    public List<Task> getAllTasksSortedByPriority(){
         return tasks.stream()
         .sorted((task1, task2) ->
                 task2.getPriority().compareTo(task1.getPriority()))
-        .collect(Collectors.toCollection(ArrayList::new));
+        .collect(Collectors.toList());
     }
-    public ArrayList<Task> getAllOverdueTasks(){
+    public List<Task> getAllOverdueTasks(){
         LocalDate today = LocalDate.now();
         return tasks.stream()
-        .filter(task -> !task.isCompleted() && task.getDueDate().isBefore(today))
-        .collect(Collectors.toCollection(ArrayList::new));
+        .filter(task -> !task.isCompleted() 
+        && task.getDueDate().isBefore(today))
+        .collect(Collectors.toList());
     }
     public TaskStatistics getTaskStatistics(){
         int totalTasks = tasks.size();
@@ -120,53 +165,45 @@ public class TaskService {
                 }
             }
         }
-        return new TaskStatistics(totalTasks, completedTasks, pendingTasks, highPriorityPendingTasks, overdueTasks);
+        return new TaskStatistics(totalTasks, completedTasks, 
+            pendingTasks, highPriorityPendingTasks, overdueTasks);
     }
     public TaskEditResult editTask(int id,
                      String newTitle,
-                     int newPriority,
-                     String newDueDate){
-        boolean found = false;
-        if(newPriority < 0 || newPriority > 3){
-            return TaskEditResult.INVALID_PRIORITY;
-        }
-        Priority priority = null;
-        if(newPriority != 0){
-            priority = Priority.fromChoice(newPriority);
-        }
-        LocalDate dueDate = null;
-        try{
-            if(newDueDate != null && !newDueDate.isEmpty()){
-                dueDate = LocalDate.parse(newDueDate);
-                if(dueDate.isBefore(LocalDate.now())){
-                    return TaskEditResult.DUE_DATE_IN_PAST;
-                }
-            }
-        }
-        catch(Exception e){
-            return TaskEditResult.DUE_DATE_INVALID_FORMAT;
-        }
-        if(newTitle.isEmpty() && priority == null && dueDate == null){
-            return TaskEditResult.NO_CHANGES_PROVIDED;
-        }
-        for(Task task : tasks){
-            if(task.getId() == id){
-                if(!newTitle.isEmpty()){
-                    task.setTitle(newTitle);
-                }
-                if(priority != null){
-                    task.setPriority(priority);
-                }
-                if(dueDate != null){
-                    task.setDueDate(dueDate);
-                }
-                found = true;
-            }
-        }
-        if(!found){
+                     Integer newPriority,
+                     String newDueDate) {
+        Task task = findTaskById(id);
+        if(task == null){
             return TaskEditResult.TASK_NOT_FOUND;
         }
-        repository.saveTasks(tasks);
+
+        ValidationResult validationTitle = validateTitle(newTitle, true);
+        if (validationTitle == ValidationResult.TOO_LONG_TITLE) return TaskEditResult.TOO_LONG_TITLE;
+
+        ValidationResult validationPriority = validatePriority(newPriority, true);
+        if (validationPriority == ValidationResult.INVALID_PRIORITY) return TaskEditResult.INVALID_PRIORITY;
+
+        ValidationResult validationDueDate = validateDueDate(newDueDate, true);
+        if (validationDueDate == ValidationResult.IN_PAST) return TaskEditResult.DUE_DATE_IN_PAST;
+        if (validationDueDate == ValidationResult.INVALID_DATE) return TaskEditResult.DUE_DATE_INVALID_FORMAT;
+        
+        if (validationTitle == ValidationResult.NO_INPUT && 
+            validationPriority == ValidationResult.NO_INPUT && 
+            validationDueDate == ValidationResult.NO_INPUT) {
+            return TaskEditResult.NO_CHANGES_PROVIDED;
+        }
+
+        if(validationTitle == ValidationResult.VALID){
+            task.setTitle(newTitle);
+        }
+        if(validationPriority == ValidationResult.VALID){
+            task.setPriority(Priority.fromChoice(newPriority));
+        }
+        if(validationDueDate == ValidationResult.VALID){
+            task.setDueDate(LocalDate.parse(newDueDate));
+        }
+        
+        saveTasks();
         return TaskEditResult.EDIT_SUCCESS;
     }
 }

@@ -30,7 +30,7 @@
 
                 <configuration>
                     <mainClass>
-                        com.gowtham.taskmanager.ui.Main
+                        com.myapp.taskmanager.ui.Main
                     </mainClass>
                 </configuration>
             </plugin>
