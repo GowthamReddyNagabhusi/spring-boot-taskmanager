@@ -7,6 +7,5 @@ public enum TaskEditResult {
     DUE_DATE_IN_PAST,
     DUE_DATE_INVALID_FORMAT,
     NO_CHANGES_PROVIDED,
-    EMPTY_TITLE,
     TOO_LONG_TITLE
 }

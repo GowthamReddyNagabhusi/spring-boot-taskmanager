@@ -2,6 +2,7 @@ package com.myapp.taskmanager.service;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
@@ -33,7 +34,7 @@ public class TaskServiceTest {
         assertEquals(TaskAddResult.INVALID_PRIORITY, service.addTask("Invalid Priority Task", -1, futureDate));
         assertEquals(TaskAddResult.ADD_SUCCESS, service.addTask("Past Due Date Task", 2, pastDate));
         assertEquals(TaskAddResult.DUE_DATE_INVALID_FORMAT, service.addTask("Invalid Date Format Task", 2, "invalid-date"));
-        ArrayList<Task> tasks = service.getAllTasks();
+        List<Task> tasks = service.getAllTasks();
         assertEquals(2, tasks.size());
         Task task1 = tasks.get(0);
         assertEquals("New Task", task1.getTitle());
@@ -48,7 +49,7 @@ public class TaskServiceTest {
     public void testGetAllTasks() {
         service.addTask("Task 1", 1, futureDate);
         service.addTask("Task 2", 3, futureDate);
-        ArrayList<Task> tasks = service.getAllTasks();
+        List<Task> tasks = service.getAllTasks();
         Task task1 = tasks.get(0);
         Task task2 = tasks.get(1);
         assertEquals(2, tasks.size());
@@ -122,7 +123,7 @@ public class TaskServiceTest {
         int completedTaskId2 = service.getAllTasks().get(1).getId();
         service.markTaskCompleted(completedTaskId1);
         service.markTaskCompleted(completedTaskId2);
-        ArrayList<Task> completedTasks = service.getAllCompletedTasks();
+        List<Task> completedTasks = service.getAllCompletedTasks();
         assertEquals(2, completedTasks.size());
         assertTrue(completedTasks.stream().anyMatch(t -> t.getTitle().equals("Completed Task 1")));
         assertTrue(completedTasks.stream().anyMatch(t -> t.getTitle().equals("Completed Task 2")));
@@ -134,7 +135,7 @@ public class TaskServiceTest {
         service.addTask("Completed Task", 2, futureDate);
         int completedTaskId = service.getAllTasks().get(2).getId();
         service.markTaskCompleted(completedTaskId);
-        ArrayList<Task> pendingTasks = service.getAllPendingTasks();
+        List<Task> pendingTasks = service.getAllPendingTasks();
         assertEquals(2, pendingTasks.size());
         assertTrue(pendingTasks.stream().anyMatch(t -> t.getTitle().equals("Pending Task 1")));
         assertTrue(pendingTasks.stream().anyMatch(t -> t.getTitle().equals("Pending Task 2")));
@@ -144,7 +145,7 @@ public class TaskServiceTest {
         service.addTask("Overdue Task 1", 1, pastDate);
         service.addTask("Overdue Task 2", 3, pastDate);
         service.addTask("Pending Task", 2, futureDate);
-        ArrayList<Task> overdueTasks = service.getAllOverdueTasks();
+        List<Task> overdueTasks = service.getAllOverdueTasks();
         assertEquals(2, overdueTasks.size());
         assertTrue(overdueTasks.stream().anyMatch(t -> t.getTitle().equals("Overdue Task 1")));
         assertTrue(overdueTasks.stream().anyMatch(t -> t.getTitle().equals("Overdue Task 2")));
@@ -154,7 +155,7 @@ public class TaskServiceTest {
         service.addTask("Low Priority Task", 1, futureDate);
         service.addTask("High Priority Task", 3, futureDate);
         service.addTask("Medium Priority Task", 2, futureDate);
-        ArrayList<Task> sortedTasks = service.getAllTasksSortedByPriority();
+        List<Task> sortedTasks = service.getAllTasksSortedByPriority();
         assertEquals(3, sortedTasks.size());
         assertEquals("High Priority Task", sortedTasks.get(0).getTitle());
         assertEquals("Medium Priority Task", sortedTasks.get(1).getTitle());
@@ -165,7 +166,7 @@ public class TaskServiceTest {
         service.addTask("Buy groceries", 1, futureDate);
         service.addTask("Call Alice", 2, futureDate);
         service.addTask("Finish report", 3, futureDate);
-        ArrayList<Task> searchResults = service.searchTasks("call");
+        List<Task> searchResults = service.searchTasks("call");
         assertEquals(1, searchResults.size());
         assertEquals("Call Alice", searchResults.get(0).getTitle());
         searchResults = service.searchTasks("report");

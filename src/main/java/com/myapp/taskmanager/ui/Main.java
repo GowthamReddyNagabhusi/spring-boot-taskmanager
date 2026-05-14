@@ -1,6 +1,6 @@
 package com.myapp.taskmanager.ui;
 import java.util.Scanner;
-import com.myapp.taskmanager.persistence.FileHandler;
+import com.myapp.taskmanager.persistence.FileTaskRepository;
 import com.myapp.taskmanager.service.TaskService;
 import com.myapp.taskmanager.model.Task;
 import com.myapp.taskmanager.service.TaskCompletionResult;
@@ -137,7 +137,7 @@ public class Main{
 
     public static void main(String[] args){
 
-        TaskService service = new TaskService(new FileHandler());
+        TaskService service = new TaskService(new FileTaskRepository());
         try (Scanner scanner = new Scanner(System.in)) {
             while(true){
             System.out.println("--- Task Manager ---");

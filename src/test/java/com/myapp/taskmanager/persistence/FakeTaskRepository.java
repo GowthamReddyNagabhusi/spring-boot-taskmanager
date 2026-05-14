@@ -1,15 +1,16 @@
 package com.myapp.taskmanager.persistence;
 import java.util.ArrayList;
+import java.util.List;
 import com.myapp.taskmanager.model.Task;
 
 public class FakeTaskRepository implements TaskRepository {
-    private ArrayList<Task> tasks = new ArrayList<>();
+    private List<Task> tasks = new ArrayList<>();
     @Override
-    public void saveTasks(ArrayList<Task> tasks) {
+    public void saveTasks(List<Task> tasks) {
         this.tasks = tasks;
     }
     @Override
-    public ArrayList<Task> loadTasks() {
+    public List<Task> loadTasks() {
         return this.tasks;
     }
     
