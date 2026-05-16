@@ -11,6 +11,8 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.BufferedReader;
 import java.io.FileReader;
+import org.springframework.stereotype.Repository;
+@Repository
 public class FileTaskRepository implements TaskRepository {
     public void saveTasks(List<Task> tasks){
         File dataFolder = new File("data");

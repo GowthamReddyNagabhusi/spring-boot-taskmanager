@@ -8,7 +8,8 @@ import com.myapp.taskmanager.model.TaskStatistics;
 import com.myapp.taskmanager.persistence.TaskRepository;
 import java.time.LocalDate;
 import java.util.stream.Collectors;
-
+import org.springframework.stereotype.Service;
+@Service
 public class TaskService {
     private List<Task> tasks;
     private int idCounter;

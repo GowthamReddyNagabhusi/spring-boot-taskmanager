@@ -1,7 +1,5 @@
 package com.myapp.taskmanager.service;
-
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
