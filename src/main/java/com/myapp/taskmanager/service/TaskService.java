@@ -90,6 +90,13 @@ public class TaskService {
     public List<Task> getAllTasks() {
         return new ArrayList<>(tasks);
     }
+    public Task getTaskById(int id){
+        Task task = findTaskById(id);
+        if(task != null){
+            return task;
+        }
+        return null;
+    }
     public boolean deleteTask(int id) {
         Iterator<Task> iterator = tasks.iterator();
 
