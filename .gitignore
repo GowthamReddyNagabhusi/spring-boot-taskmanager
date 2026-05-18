@@ -32,4 +32,4 @@ Thumbs.db
 
 #persistent data
 data/
-tasks.txt
+*.txt
