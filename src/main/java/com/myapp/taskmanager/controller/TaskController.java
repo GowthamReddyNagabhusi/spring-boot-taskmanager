@@ -15,6 +15,7 @@ import com.myapp.taskmanager.service.TaskCompletionResult;
 import org.springframework.web.bind.annotation.PutMapping;
 import com.myapp.taskmanager.service.TaskEditResult;
 import org.springframework.http.ResponseEntity;
+import com.myapp.taskmanager.dto.UpdateTaskRequest;
 import java.util.List;
 
 @RestController
@@ -102,7 +103,7 @@ public class TaskController {
         }
     }
     @PutMapping("/tasks/{id}")
-    public ResponseEntity<String> updateTask(@PathVariable("id") int id, @RequestBody CreateTaskRequest request){
+    public ResponseEntity<String> updateTask(@PathVariable("id") int id, @RequestBody UpdateTaskRequest request){
         TaskEditResult result = taskService
                                     .editTask(id, request.getTitle(),
                                      request.getPriority(), 
